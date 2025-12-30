@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .signup-card {
+      background: #fff;
+      width: 380px;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .signup-card h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #2d3436;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .signup-card label {
+      font-size: 14px;
+      color: #636e72;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .signup-card input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #dfe6e9;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    .signup-card input:focus {
+      border-color: #00b894;
+    }
+
+    .error-message {
+      color: #d63031;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .signup-card button {
+      width: 100%;
+      padding: 12px;
+      background: #00b894;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .signup-card button:hover {
+      background: #019874;
+    }
+
+    .footer-text {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #636e72;
+    }
+
+    .footer-text a {
+      color: #00b894;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-card">
+    <h2>Create Account</h2>
+    <form id="signupForm">
+      <div class="input-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+        <div id="nameError" class="error-message"></div>
+      </div>
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        <div id="emailError" class="error-message"></div>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        <div id="passwordError" class="error-message"></div>
+      </div>
+      <div class="input-group">
+        <label for="confirm">Confirm Password</label>
+        <input type="password" id="confirm" name="confirm" placeholder="Confirm your password" required>
+        <div id="confirmError" class="error-message"></div>
+      </div>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p class="footer-text">Already have an account? <a href="User_login.html">Login</a></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('signupForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm');
+
+    const nameError = document.getElementById('nameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmError = document.getElementById('confirmError');
+
+    // Initialize or load databases
+    function initializeDatabases() {
+      // User database for authentication
+      let userDatabase = JSON.parse(localStorage.getItem('userDatabase')) || [];
+      
+      // Admin database for user profile data
+      let adminDatabase = JSON.parse(localStorage.getItem('adminDatabase')) || {};
+      
+      return { userDatabase, adminDatabase };
+    }
+
+    // Check if email already exists
+    function checkEmailExists(email, userDatabase) {
+      return userDatabase.some(user => user.email === email);
+    }
+
+    // Create user account
+    function createUserAccount(userData) {
+      const { userDatabase, adminDatabase } = initializeDatabases();
+      
+      // Add to user database (authentication)
+      const newUser = {
+        id: userDatabase.length + 1,
+        email: userData.email,
+        password: userData.password,
+        fullName: userData.name,
+        hasSubmittedInfo: true,
+        isFirstLogin: false,
+        authProvider: 'email',
+        createdAt: new Date().toISOString()
+      };
+      
+      userDatabase.push(newUser);
+      localStorage.setItem('userDatabase', JSON.stringify(userDatabase));
+      
+      // Create user entry in admin database
+      const userId = `USER-${Date.now().toString().slice(-6)}`;
+      adminDatabase[userData.email] = {
+        userId: userId,
+        email: userData.email,
+        fullName: userData.name,
+        totalPoints: 0,
+        monthlyEarnings: 0,
+        salary: 0,
+        tasksCompleted: 0,
+        totalTasks: 0,
+        weeklyEarnings: 0,
+        monthlyHistory: [
+          { 
+            month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }), 
+            earnings: 0, 
+            points: 0, 
+            status: "pending" 
+          }
+        ],
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      };
+      
+      localStorage.setItem('adminDatabase', JSON.stringify(adminDatabase));
+      
+      // Set current user session
+      sessionStorage.setItem('currentUser', JSON.stringify({
+        email: userData.email,
+        fullName: userData.name,
+        userId: userId,
+        loginTime: new Date().toISOString()
+      }));
+      
+      return true;
+    }
+
+    // Validate form
+    function validateForm() {
+      let isValid = true;
+      
+      // Reset errors
+      nameError.textContent = '';
+      emailError.textContent = '';
+      passwordError.textContent = '';
+      confirmError.textContent = '';
+      
+      // Validate name
+      if (!nameInput.value.trim()) {
+        nameError.textContent = 'Full name is required';
+        isValid = false;
+      }
+      
+      // Validate email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailInput.value.trim()) {
+        emailError.textContent = 'Email is required';
+        isValid = false;
+      } else if (!emailRegex.test(emailInput.value)) {
+        emailError.textContent = 'Please enter a valid email address';
+        isValid = false;
+      } else {
+        // Check if email already exists
+        const { userDatabase } = initializeDatabases();
+        if (checkEmailExists(emailInput.value.trim(), userDatabase)) {
+          emailError.textContent = 'Email already exists. Please login instead.';
+          isValid = false;
+        }
+      }
+      
+      // Validate password
+      if (!passwordInput.value) {
+        passwordError.textContent = 'Password is required';
+        isValid = false;
+      } else if (passwordInput.value.length < 6) {
+        passwordError.textContent = 'Password must be at least 6 characters';
+        isValid = false;
+      }
+      
+      // Validate confirm password
+      if (!confirmInput.value) {
+        confirmError.textContent = 'Please confirm your password';
+        isValid = false;
+      } else if (passwordInput.value !== confirmInput.value) {
+        confirmError.textContent = 'Passwords do not match';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (validateForm()) {
+        // Get form data
+        const userData = {
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          password: passwordInput.value
+        };
+        
+        // Create account
+        if (createUserAccount(userData)) {
+          // Show success message
+          alert('Account created successfully! Redirecting to your dashboard...');
+          
+          // Redirect to user panel
+          setTimeout(() => {
+            window.location.href = 'User_panal.html';
+          }, 1000);
+        } else {
+          alert('Failed to create account. Please try again.');
+        }
+      }
+    });
+
+    // Real-time validation
+    nameInput.addEventListener('blur', () => {
+      if (!nameInput.value.trim()) {
+        nameError.textContent = 'Full name is required';
+      } else {
+        nameError.textContent = '';
+      }
+    });
+
+    emailInput.addEventListener('blur', () => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailInput.value.trim()) {
+        emailError.textContent = 'Email is required';
+      } else if (!emailRegex.test(emailInput.value)) {
+        emailError.textContent = 'Please enter a valid email address';
+      } else {
+        const { userDatabase } = initializeDatabases();
+        if (checkEmailExists(emailInput.value.trim(), userDatabase)) {
+          emailError.textContent = 'Email already exists. Please login instead.';
+        } else {
+          emailError.textContent = '';
+        }
+      }
+    });
+
+    passwordInput.addEventListener('blur', () => {
+      if (!passwordInput.value) {
+        passwordError.textContent = 'Password is required';
+      } else if (passwordInput.value.length < 6) {
+        passwordError.textContent = 'Password must be at least 6 characters';
+      } else {
+        passwordError.textContent = '';
+      }
+    });
+
+    confirmInput.addEventListener('blur', () => {
+      if (!confirmInput.value) {
+        confirmError.textContent = 'Please confirm your password';
+      } else if (passwordInput.value !== confirmInput.value) {
+        confirmError.textContent = 'Passwords do not match';
+      } else {
+        confirmError.textContent = '';
+      }
+    });
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      // Clear any existing session
+      sessionStorage.removeItem('currentUser');
+      
+      // Clear form if coming back
+      form.reset();
+    });
+  </script>
+</body>
+</html>

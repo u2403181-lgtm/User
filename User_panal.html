@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Admin Controlled</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Keep all your existing CSS styles */
+       * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0px;
+        }
+
+        /* Main Container with Fixed Size */
+        .dashboard-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            min-height: 600px;
+            background: #f8f9fa;
+            border-radius: 0px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header */
+        .dashboard-header {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* User Profile Row */
+        .user-profile-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .profile-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .profile-pic-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+        }
+
+        .profile-upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #667eea;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Badge Container for ID and Time */
+        .badge-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        /* Common Badge Style */
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .meta-badge i {
+            font-size: 10px;
+        }
+
+        /* ID Badge */
+        .badge-id {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            border: 1px solid #e1bee7;
+        }
+
+        .badge-id i {
+            color: #7b1fa2;
+        }
+
+        /* Time Badge */
+        .badge-time {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .badge-time i {
+            color: #1976d2;
+        }
+
+        /* Points and Notification Container */
+        .top-right-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Coin/Points Box */
+        .coin-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 25px;
+            background: #fff3d6;
+            border: 1.5px solid #ffd27d;
+            font-weight: 600;
+            color: #a66a00;
+            white-space: nowrap;
+            min-width: 80px;
+            justify-content: center;
+        }
+
+        .coin-icon {
+            font-size: 16px;
+        }
+
+        .coin-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* Notification Bell */
+        .bell-box {
+            position: relative;
+            font-size: 20px;
+            cursor: pointer;
+            color: #667eea;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f0f2ff;
+            transition: all 0.3s;
+        }
+
+        .bell-box:hover {
+            background: #e3e7ff;
+            transform: scale(1.05);
+        }
+
+        /* Notification dot */
+        .notify-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            background: #f5576c;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-top: 10px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        /* Scrollable Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Admin Fields Grid */
+        .fields-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 380px) {
+            .fields-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        .admin-field {
+            background: white;
+            padding: 18px 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .admin-field:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+        }
+
+        .field-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 18px;
+            color: white;
+        }
+
+        .field-icon.earnings {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .field-icon.salary {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .field-icon.tasks {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .field-icon.weekly {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .field-title {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .field-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .field-value.zero {
+            color: #999;
+        }
+
+        .field-status {
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-height: 16px;
+        }
+
+        .field-status.updated {
+            color: #4caf50;
+        }
+
+        .field-status.empty {
+            color: #999;
+        }
+
+        /* Monthly History */
+        .monthly-history {
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            margin-top: 18px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title h3 {
+            font-size: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: #667eea;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            background: #f8f9fa;
+            padding: 8px;
+            text-align: left;
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 2px solid #eee;
+        }
+
+        .history-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .history-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .history-table .month-cell {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 12px;
+        }
+
+        .history-table .status-cell {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Notification Panel */
+        .notification-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .notification-panel.show {
+            display: block;
+        }
+
+        .notification-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            transition: background 0.3s;
+        }
+
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.update {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .notification-icon.points {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .notification-icon.salary {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .notification-desc {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .notification-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+        }
+
+        .notification-time {
+            color: #999;
+        }
+
+        .admin-time {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .notification-item.unread {
+            background: #f0f7ff;
+        }
+
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* Search Results */
+        .search-results {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            position: absolute;
+            width: calc(100% - 40px);
+            z-index: 999;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .result-item:hover {
+            background: #f8f9fa;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #333;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 13px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
+
+        /* Image Upload Modal */
+        .image-upload-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            z-index: 1002;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .image-upload-modal.show {
+            display: block;
+        }
+
+        .upload-modal-content h3 {
+            color: #333;
+            margin-bottom: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .upload-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+
+        .upload-btn i {
+            font-size: 28px;
+            color: #667eea;
+        }
+
+        .upload-btn span {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-container {
+            text-align: center;
+            margin-bottom: 18px;
+            display: none;
+        }
+
+        #imagePreview {
+            max-width: 180px;
+            max-height: 180px;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .modal-btn.save {
+            background: #667eea;
+            color: white;
+        }
+
+        .modal-btn.save:hover {
+            background: #5a6fd8;
+        }
+
+        .modal-btn.cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #e0e0e0;
+        }
+
+        /* Performance Graph Page */
+        .performance-graph-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1003;
+            overflow-y: auto;
+        }
+
+        .performance-graph-page.show {
+            display: block;
+        }
+
+        .graph-header {
+            background: white;
+            padding: 18px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .graph-header h2 {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .graph-container {
+            padding: 18px;
+        }
+
+        .graph-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .graph-tab {
+            padding: 8px 14px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .graph-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .graph-canvas {
+            width: 100%;
+            height: 280px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: flex-end;
+            padding: 15px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .graph-bar {
+            flex: 1;
+            min-width: 30px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            margin: 0 4px;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+
+        .graph-label {
+            position: absolute;
+            bottom: -22px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .graph-value {
+            position: absolute;
+            top: -22px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .graph-legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-text {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* Scrollbar Styling */
+        .content-area::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .content-area::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 400px) {
+            .dashboard-header {
+                padding: 12px 15px;
+            }
+            
+            .content-area {
+                padding: 15px;
+            }
+            
+            .fields-grid {
+                gap: 10px;
+            }
+            
+            .admin-field {
+                padding: 15px 12px;
+            }
+            
+            .field-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .field-value {
+                font-size: 20px;
+            }
+            
+            .history-table th,
+            .history-table td {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+            
+            .coin-box {
+                padding: 6px 10px;
+                min-width: 70px;
+            }
+            
+            .coin-icon {
+                font-size: 14px;
+            }
+            
+            .coin-value {
+                font-size: 13px;
+            }
+            
+            .bell-box {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+            
+            .user-name {
+                font-size: 15px;
+            }
+            
+            .profile-pic {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .badge-container {
+                gap: 6px;
+            }
+            
+            .meta-badge {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .dashboard-container {
+                height: 95vh;
+                min-height: 500px;
+            }
+            
+            .content-area {
+                padding: 15px;
+            }
+            
+            .fields-grid {
+                margin: 12px 0;
+                gap: 10px;
+            }
+            
+            .admin-field {
+                padding: 15px;
+            }
+            
+            .field-icon {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 10px;
+            }
+            
+            .field-value {
+                font-size: 20px;
+            }
+        }
+
+        /* All other CSS styles remain the same */
+        /* ... (keep all your existing CSS) ... */
+        
+    </style>
+</head>
+<body>
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <!-- User Profile Row -->
+            <div class="user-profile-row">
+                <div class="profile-left">
+                    <div class="profile-pic-container" onclick="openImageUpload()">
+                        <img src="" alt="User" class="profile-pic" id="profileImage">
+                        <div class="profile-upload-btn">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="userNameDisplay">Loading...</div>
+                        <div class="badge-container">
+                            <div class="meta-badge badge-id">
+                                <i class="fas fa-id-card"></i>
+                                <span id="userIdBadge">ID: Loading...</span>
+                            </div>
+                            <div class="meta-badge badge-time">
+                                <i class="fas fa-clock"></i>
+                                <span id="timeBadge">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Points and Notification Container -->
+                <div class="top-right-container">
+                    <!-- Coin/Points Box -->
+                    <div class="coin-box">
+                        <span class="coin-icon">🪙</span>
+                        <span class="coin-value" id="totalPointsValue">0</span>
+                    </div>
+
+                    <!-- Notification Bell -->
+                    <div class="bell-box" id="notificationTrigger">
+                        <i class="fas fa-bell"></i>
+                        <span class="notify-dot" id="notificationDot"></span>
+                    </div>
+                    
+                    <!-- Logout Button -->
+                    <div class="bell-box" id="logoutTrigger" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search points, earnings, salary, tasks...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <!-- Search Results -->
+                <div class="search-results" id="searchResults">
+                    <div id="resultsContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Content Area -->
+        <div class="content-area" id="contentArea">
+            <!-- Admin Fields Grid -->
+            <div class="fields-grid">
+                <!-- Monthly Earnings -->
+                <div class="admin-field" onclick="showPerformanceGraph('monthlyEarnings')">
+                    <div class="field-icon earnings">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="field-title">Monthly Earnings</div>
+                    <div class="field-value zero" id="fieldMonthlyEarnings">৳0</div>
+                    <div class="field-status empty" id="monthlyEarningsStatus">Waiting for admin</div>
+                </div>
+
+                <!-- Current Salary -->
+                <div class="admin-field" onclick="showPerformanceGraph('salary')">
+                    <div class="field-icon salary">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div class="field-title">Current Salary</div>
+                    <div class="field-value zero" id="fieldSalary">৳0</div>
+                    <div class="field-status empty" id="salaryStatus">Waiting for admin</div>
+                </div>
+
+                <!-- Tasks Completed -->
+                <div class="admin-field" onclick="showPerformanceGraph('tasks')">
+                    <div class="field-icon tasks">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="field-title">Tasks Completed</div>
+                    <div class="field-value zero" id="fieldTasks">0/0</div>
+                    <div class="field-status empty" id="tasksStatus">Waiting for admin</div>
+                </div>
+
+                <!-- Weekly Earnings -->
+                <div class="admin-field" onclick="showPerformanceGraph('weeklyEarnings')">
+                    <div class="field-icon weekly">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="field-title">Weekly Earnings</div>
+                    <div class="field-value zero" id="fieldWeeklyEarnings">৳0</div>
+                    <div class="field-status empty" id="weeklyEarningsStatus">Waiting for admin</div>
+                </div>
+            </div>
+
+            <!-- Monthly History -->
+            <div class="monthly-history">
+                <div class="section-title">
+                    <h3>Earning History</h3>
+                    <a href="#" class="view-all" onclick="return false;">View All</a>
+                </div>
+                
+                <div class="history-content">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Earnings</th>
+                                <th>Points</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <!-- History will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-user-clock"></i>
+                <p>Waiting for admin to update your data...</p>
+                <p style="font-size: 11px; margin-top: 10px;">All fields are controlled by admin panel</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="section-title">
+            <h3>Admin Notifications</h3>
+            <a href="#" class="view-all" id="markAllRead" onclick="markAllAsRead(); return false;">Mark all as read</a>
+        </div>
+        
+        <div id="notificationList">
+            <div class="empty-state">
+                <i class="fas fa-bell-slash"></i>
+                <p>No notifications yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div class="image-upload-modal" id="imageUploadModal">
+        <div class="upload-modal-content">
+            <h3>Update Profile Picture</h3>
+            
+            <div class="preview-container" id="previewContainer">
+                <img id="imagePreview" alt="Preview">
+            </div>
+            
+            <div class="upload-options">
+                <label class="upload-btn" for="fileInput">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload from Computer</span>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                </label>
+                
+                <div class="upload-btn" onclick="useDefaultImage()">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Use Default Avatar</span>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeImageUpload()">Cancel</button>
+                <button class="modal-btn save" onclick="saveProfileImage()">Save Picture</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Graph Page -->
+    <div class="performance-graph-page" id="performanceGraphPage">
+        <div class="graph-header">
+            <h2 id="graphTitle">Performance Graph</h2>
+            <button class="modal-btn cancel" onclick="closePerformanceGraph()">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+        
+        <div class="graph-container">
+            <div class="graph-tabs">
+                <button class="graph-tab active" onclick="switchGraphTab('weekly')">Weekly</button>
+                <button class="graph-tab" onclick="switchGraphTab('monthly')">Monthly</button>
+            </div>
+            
+            <div class="graph-canvas" id="graphCanvas">
+                <!-- Graph bars will be generated here -->
+            </div>
+            
+            <div class="graph-legend" id="graphLegend">
+                <!-- Legend items will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <script>
+        // Get user session
+        function getUserSession() {
+            return JSON.parse(localStorage.getItem('userSession'));
+        }
+
+        // Get current user from admin database
+        function getCurrentUser() {
+            const session = getUserSession();
+            if (!session || !session.email) return null;
+            
+            const adminUsers = JSON.parse(localStorage.getItem('adminUsers')) || [];
+            return adminUsers.find(user => user.email === session.email);
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('userSession');
+            window.location.href = "User_login.html";
+        }
+
+        // Initialize data with user-specific data from admin database
+        let userData = {
+            totalPoints: 0,
+            monthlyEarnings: 0,
+            salary: 0,
+            tasksCompleted: 0,
+            totalTasks: 0,
+            weeklyEarnings: 0,
+            lastAdminUpdate: null,
+            monthlyHistory: []
+        };
+
+        let notifications = [];
+        let searchableData = [];
+        let profileImageFile = null;
+        let profileImageUrl = null;
+        let currentGraphType = null;
+
+        // Performance data
+        const performanceData = {
+            monthlyEarnings: {
+                weekly: [
+                    { label: "Week 1", value: 0 },
+                    { label: "Week 2", value: 0 },
+                    { label: "Week 3", value: 0 },
+                    { label: "Week 4", value: 0 },
+                    { label: "Week 5", value: 0 },
+                    { label: "Week 6", value: 0 },
+                    { label: "Week 7", value: 0 },
+                    { label: "Week 8", value: 0 },
+                    { label: "Week 9", value: 0 },
+                    { label: "Week 10", value: 0 }
+                ],
+                monthly: [
+                    { label: "Mar", value: 0 },
+                    { label: "Apr", value: 0 },
+                    { label: "May", value: 0 },
+                    { label: "Jun", value: 0 },
+                    { label: "Jul", value: 0 },
+                    { label: "Aug", value: 0 },
+                    { label: "Sep", value: 0 },
+                    { label: "Oct", value: 0 },
+                    { label: "Nov", value: 0 },
+                    { label: "Dec", value: 0 }
+                ]
+            },
+            salary: {
+                weekly: Array(10).fill().map((_, i) => ({ label: `Week ${i+1}`, value: 0 })),
+                monthly: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"].map(m => ({ label: m, value: 0 }))
+            },
+            tasks: {
+                weekly: Array(10).fill().map((_, i) => ({ label: `Week ${i+1}`, value: 0 })),
+                monthly: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"].map(m => ({ label: m, value: 0 }))
+            },
+            weeklyEarnings: {
+                weekly: Array(10).fill().map((_, i) => ({ label: `Week ${i+1}`, value: 0 })),
+                monthly: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"].map(m => ({ label: m, value: 0 }))
+            }
+        };
+
+        // DOM Elements
+        const contentArea = document.getElementById('contentArea');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const notificationTrigger = document.getElementById('notificationTrigger');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const overlay = document.getElementById('overlay');
+        const notificationDot = document.getElementById('notificationDot');
+        const notificationList = document.getElementById('notificationList');
+        const timeBadge = document.getElementById('timeBadge');
+        const userIdBadge = document.getElementById('userIdBadge');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const emptyState = document.getElementById('emptyState');
+        const profileImage = document.getElementById('profileImage');
+        const imageUploadModal = document.getElementById('imageUploadModal');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const performanceGraphPage = document.getElementById('performanceGraphPage');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const graphLegend = document.getElementById('graphLegend');
+        const graphTitle = document.getElementById('graphTitle');
+        const totalPointsValue = document.getElementById('totalPointsValue');
+        const logoutTrigger = document.getElementById('logoutTrigger');
+
+        // Field elements
+        const fieldElements = {
+            monthlyEarnings: document.getElementById('fieldMonthlyEarnings'),
+            salary: document.getElementById('fieldSalary'),
+            tasks: document.getElementById('fieldTasks'),
+            weeklyEarnings: document.getElementById('fieldWeeklyEarnings')
+        };
+
+        const statusElements = {
+            monthlyEarnings: document.getElementById('monthlyEarningsStatus'),
+            salary: document.getElementById('salaryStatus'),
+            tasks: document.getElementById('tasksStatus'),
+            weeklyEarnings: document.getElementById('weeklyEarningsStatus')
+        };
+
+        // Initialize page
+        function initPage() {
+            // Check if user is logged in
+            const session = getUserSession();
+            if (!session || !session.loggedIn) {
+                // Redirect to login page if not logged in
+                window.location.href = "User_login.html";
+                return;
+            }
+
+            // Load user data from admin database
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                alert("User data not found. Please contact administrator.");
+                logout();
+                return;
+            }
+
+            // Update user interface with user data
+            updateUserInterface(currentUser);
+            
+            // Load user-specific data
+            loadUserData(currentUser);
+            loadProfileImage();
+            updateAllFields();
+            buildSearchableData();
+            updateNotificationDot();
+            updateTimeBadge();
+            
+            // Hide empty state if any data exists
+            checkAndHideEmptyState();
+            
+            // Start time update interval
+            setInterval(updateTimeBadge, 1000);
+        }
+
+        // Update user interface with user data
+        function updateUserInterface(user) {
+            userNameDisplay.textContent = `${user.firstName} ${user.lastName}`;
+            userIdBadge.textContent = `ID: ${user.id}`;
+            
+            // Set profile image from session or local storage
+            const session = getUserSession();
+            const profileImageKey = `profileImage_${user.email}`;
+            const savedImage = localStorage.getItem(profileImageKey);
+            
+            if (savedImage) {
+                profileImage.src = savedImage;
+                profileImageUrl = savedImage;
+            } else {
+                // Set default image with user initials
+                profileImage.src = `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=667eea&color=fff&size=128`;
+            }
+        }
+
+        // Load user data from admin database
+        function loadUserData(user) {
+            // Update userData with actual user data from admin database
+            userData.totalPoints = user.points || 0;
+            userData.salary = user.salary || 0;
+            
+            // Load earning history from admin database
+            if (user.earningHistory && user.earningHistory.length > 0) {
+                // Convert admin earning history to user panel format
+                userData.monthlyHistory = user.earningHistory.map(record => {
+                    const date = new Date(record.dateTime || record.date);
+                    const month = date.toLocaleString('default', { month: 'long' });
+                    const year = date.getFullYear();
+                    
+                    return {
+                        month: `${month} ${year}`,
+                        earnings: record.salaryChange || 0,
+                        points: record.pointsChange || 0,
+                        status: 'paid'
+                    };
+                });
+            } else {
+                // Default empty history
+                userData.monthlyHistory = [
+                    { month: "No History", earnings: 0, points: 0, status: "pending" }
+                ];
+            }
+            
+            // If user has performance history, update performance data
+            if (user.performanceHistory && user.performanceHistory.length > 0) {
+                user.performanceHistory.forEach((record, index) => {
+                    if (index < 10) {
+                        performanceData.monthlyEarnings.weekly[index].value = record.points || 0;
+                        performanceData.salary.weekly[index].value = record.salary || 0;
+                    }
+                });
+            }
+        }
+
+        // Load profile image from localStorage
+        function loadProfileImage() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const profileImageKey = `profileImage_${currentUser.email}`;
+            const savedImage = localStorage.getItem(profileImageKey);
+            if (savedImage) {
+                profileImage.src = savedImage;
+                profileImageUrl = savedImage;
+            } else {
+                // Set default image with user initials
+                const session = getUserSession();
+                if (session && session.name) {
+                    const initials = session.name.split(' ').map(n => n[0]).join('');
+                    profileImage.src = `https://ui-avatars.com/api/?name=${initials}&background=667eea&color=fff&size=128`;
+                }
+            }
+        }
+
+        // Open image upload modal
+        function openImageUpload() {
+            imageUploadModal.classList.add('show');
+            overlay.classList.add('show');
+        }
+
+        // Close image upload modal
+        function closeImageUpload() {
+            imageUploadModal.classList.remove('show');
+            overlay.classList.remove('show');
+            previewContainer.style.display = 'none';
+            profileImageFile = null;
+            fileInput.value = '';
+        }
+
+        // Use default image
+        function useDefaultImage() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const defaultImage = `https://ui-avatars.com/api/?name=${currentUser.firstName}+${currentUser.lastName}&background=667eea&color=fff&size=128`;
+            profileImage.src = defaultImage;
+            
+            const profileImageKey = `profileImage_${currentUser.email}`;
+            localStorage.setItem(profileImageKey, defaultImage);
+            profileImageUrl = defaultImage;
+            
+            addNotification('Profile Updated', 'Profile picture set to default', 'update');
+            closeImageUpload();
+        }
+
+        // Save profile image
+        function saveProfileImage() {
+            if (profileImageFile) {
+                const currentUser = getCurrentUser();
+                if (!currentUser) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileImage.src = e.target.result;
+                    
+                    const profileImageKey = `profileImage_${currentUser.email}`;
+                    localStorage.setItem(profileImageKey, e.target.result);
+                    profileImageUrl = e.target.result;
+                    
+                    addNotification('Profile Updated', 'Profile picture saved successfully', 'update');
+                    closeImageUpload();
+                };
+                reader.readAsDataURL(profileImageFile);
+            }
+        }
+
+        // Handle file input change
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                profileImageFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Update all field displays
+        function updateAllFields() {
+            // Update total points
+            totalPointsValue.textContent = userData.totalPoints;
+
+            // Monthly Earnings
+            fieldElements.monthlyEarnings.textContent = formatCurrency(userData.monthlyEarnings);
+            fieldElements.monthlyEarnings.className = userData.monthlyEarnings > 0 ? 'field-value' : 'field-value zero';
+            statusElements.monthlyEarnings.textContent = userData.monthlyEarnings > 0 ? 'Updated by admin' : 'Waiting for admin';
+            statusElements.monthlyEarnings.className = userData.monthlyEarnings > 0 ? 'field-status updated' : 'field-status empty';
+
+            // Salary
+            fieldElements.salary.textContent = formatCurrency(userData.salary);
+            fieldElements.salary.className = userData.salary > 0 ? 'field-value' : 'field-value zero';
+            statusElements.salary.textContent = userData.salary > 0 ? 'Updated by admin' : 'Waiting for admin';
+            statusElements.salary.className = userData.salary > 0 ? 'field-status updated' : 'field-status empty';
+
+            // Tasks
+            fieldElements.tasks.textContent = `${userData.tasksCompleted}/${userData.totalTasks}`;
+            fieldElements.tasks.className = userData.totalTasks > 0 ? 'field-value' : 'field-value zero';
+            statusElements.tasks.textContent = userData.totalTasks > 0 ? 'Updated by admin' : 'Waiting for admin';
+            statusElements.tasks.className = userData.totalTasks > 0 ? 'field-status updated' : 'field-status empty';
+
+            // Weekly Earnings
+            fieldElements.weeklyEarnings.textContent = formatCurrency(userData.weeklyEarnings);
+            fieldElements.weeklyEarnings.className = userData.weeklyEarnings > 0 ? 'field-value' : 'field-value zero';
+            statusElements.weeklyEarnings.textContent = userData.weeklyEarnings > 0 ? 'Updated by admin' : 'Waiting for admin';
+            statusElements.weeklyEarnings.className = userData.weeklyEarnings > 0 ? 'field-status updated' : 'field-status empty';
+
+            // Update history table
+            updateHistoryTable();
+
+            // Rebuild search data
+            buildSearchableData();
+            
+            // Check empty state
+            checkAndHideEmptyState();
+        }
+
+        // Update history table
+        function updateHistoryTable() {
+            const tableBody = document.getElementById('historyTable');
+            tableBody.innerHTML = '';
+
+            userData.monthlyHistory.forEach(month => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="month-cell">${month.month}</td>
+                    <td>${formatCurrency(month.earnings)}</td>
+                    <td>${month.points}</td>
+                    <td><span class="status-cell status-${month.status}">${month.status.charAt(0).toUpperCase() + month.status.slice(1)}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Check and hide empty state
+        function checkAndHideEmptyState() {
+            const hasData = Object.values(userData).some(value => 
+                typeof value === 'number' ? value > 0 : false
+            );
+            
+            emptyState.style.display = hasData ? 'none' : 'block';
+        }
+
+        // Format currency in Taka
+        function formatCurrency(amount) {
+            return `৳${amount.toLocaleString('en-BD')}`;
+        }
+
+        // Update time badge with date, month, year, seconds
+        function updateTimeBadge() {
+            const now = new Date();
+            const date = now.getDate();
+            const month = now.toLocaleString('default', { month: 'short' });
+            const year = now.getFullYear();
+            const time = now.toLocaleTimeString('en-US', {
+                timeZone: 'Asia/Dhaka',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            // Format: 14 Dec 15:30:45
+            timeBadge.textContent = `${date} ${month} ${time}`;
+        }
+
+        // Build searchable data
+        function buildSearchableData() {
+            searchableData = [
+                { label: 'Total Points', value: userData.totalPoints, category: 'points' },
+                { label: 'Monthly Earnings', value: formatCurrency(userData.monthlyEarnings), category: 'earnings' },
+                { label: 'Current Salary', value: formatCurrency(userData.salary), category: 'salary' },
+                { label: 'Tasks Completed', value: `${userData.tasksCompleted}/${userData.totalTasks}`, category: 'tasks' },
+                { label: 'Weekly Earnings', value: formatCurrency(userData.weeklyEarnings), category: 'earnings' }
+            ];
+
+            // Add history data
+            userData.monthlyHistory.forEach(month => {
+                searchableData.push({
+                    label: `History: ${month.month}`,
+                    value: `Earnings: ${formatCurrency(month.earnings)}, Points: ${month.points}`,
+                    category: 'history'
+                });
+            });
+        }
+
+        // Search function
+        function performSearch(query) {
+            if (!query.trim()) {
+                searchResults.classList.remove('show');
+                return;
+            }
+
+            const searchTerm = query.toLowerCase();
+            const filteredResults = searchableData.filter(item => 
+                item.label.toLowerCase().includes(searchTerm) ||
+                item.value.toString().toLowerCase().includes(searchTerm) ||
+                item.category.toLowerCase().includes(searchTerm)
+            );
+
+            displaySearchResults(filteredResults);
+        }
+
+        // Display search results
+        function displaySearchResults(results) {
+            resultsContainer.innerHTML = '';
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="result-item">
+                        <span class="result-label">No results found</span>
+                        <span class="result-value">Try different keywords</span>
+                    </div>
+                `;
+            } else {
+                results.forEach(result => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    resultItem.innerHTML = `
+                        <span class="result-label">${result.label}</span>
+                        <span class="result-value">${result.value}</span>
+                    `;
+                    resultItem.addEventListener('click', () => {
+                        searchInput.value = result.label;
+                        searchResults.classList.remove('show');
+                    });
+                    resultsContainer.appendChild(resultItem);
+                });
+            }
+            
+            searchResults.classList.add('show');
+        }
+
+        // Show performance graph
+        function showPerformanceGraph(type) {
+            currentGraphType = type;
+            
+            // Set graph title
+            const titles = {
+                monthlyEarnings: 'Monthly Earnings Performance',
+                salary: 'Salary Performance',
+                tasks: 'Task Completion Performance',
+                weeklyEarnings: 'Weekly Earnings Performance'
+            };
+            graphTitle.textContent = titles[type] || 'Performance Graph';
+            
+            // Generate graph
+            generateGraph('weekly');
+            
+            // Show graph page
+            performanceGraphPage.classList.add('show');
+        }
+
+        // Close performance graph
+        function closePerformanceGraph() {
+            performanceGraphPage.classList.remove('show');
+        }
+
+        // Switch graph tab
+        function switchGraphTab(tab) {
+            // Update active tab
+            document.querySelectorAll('.graph-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Generate graph for selected tab
+            generateGraph(tab);
+        }
+
+        // Generate graph
+        function generateGraph(tab) {
+            const data = performanceData[currentGraphType][tab];
+            
+            // Clear previous graph
+            graphCanvas.innerHTML = '';
+            graphLegend.innerHTML = '';
+            
+            // Find max value for scaling
+            const maxValue = Math.max(...data.map(d => d.value), 1);
+            
+            // Generate bars
+            data.forEach((item, index) => {
+                const barHeight = (item.value / maxValue) * 100;
+                
+                const bar = document.createElement('div');
+                bar.className = 'graph-bar';
+                bar.style.height = `${barHeight}%`;
+                
+                const value = document.createElement('div');
+                value.className = 'graph-value';
+                value.textContent = currentGraphType === 'tasks' ? item.value : formatCurrency(item.value).replace('৳', '');
+                bar.appendChild(value);
+                
+                const label = document.createElement('div');
+                label.className = 'graph-label';
+                label.textContent = item.label;
+                bar.appendChild(label);
+                
+                graphCanvas.appendChild(bar);
+            });
+            
+            // Generate legend
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+            
+            const color = document.createElement('div');
+            color.className = 'legend-color';
+            color.style.background = 'linear-gradient(to top, #667eea, #764ba2)';
+            
+            const text = document.createElement('div');
+            text.className = 'legend-text';
+            text.textContent = tab === 'weekly' ? 'Weekly Performance' : 'Monthly Performance';
+            
+            legendItem.appendChild(color);
+            legendItem.appendChild(text);
+            graphLegend.appendChild(legendItem);
+        }
+
+        // Add notification
+        function addNotification(title, description, type) {
+            const now = new Date();
+            const adminTime = now.toLocaleDateString('en-US', {
+                timeZone: 'Asia/Dhaka',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            const newNotification = {
+                id: notifications.length + 1,
+                title,
+                description,
+                time: 'Just now',
+                read: false,
+                type,
+                adminTime
+            };
+            
+            notifications.unshift(newNotification);
+            renderNotifications();
+            updateNotificationDot();
+            
+            // Pulse notification dot
+            notificationDot.style.animation = 'none';
+            setTimeout(() => {
+                notificationDot.style.animation = 'pulse 1s 3';
+            }, 10);
+        }
+
+        // Update notification dot
+        function updateNotificationDot() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            notificationDot.style.display = unreadCount > 0 ? 'block' : 'none';
+        }
+
+        // Render notifications
+        function renderNotifications() {
+            notificationList.innerHTML = '';
+            
+            if (notifications.length === 0) {
+                notificationList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            notifications.forEach(notification => {
+                const notificationItem = document.createElement('div');
+                notificationItem.className = `notification-item ${notification.read ? '' : 'unread'}`;
+                notificationItem.innerHTML = `
+                    <div class="notification-icon ${notification.type}">
+                        <i class="fas fa-${getNotificationIcon(notification.type)}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-desc">${notification.description}</div>
+                        <div class="notification-meta">
+                            <span class="notification-time">${notification.time}</span>
+                            <span class="admin-time">Admin: ${notification.adminTime}</span>
+                        </div>
+                    </div>
+                `;
+                notificationItem.addEventListener('click', () => markAsRead(notification.id));
+                notificationList.appendChild(notificationItem);
+            });
+        }
+
+        // Get notification icon
+        function getNotificationIcon(type) {
+            const icons = {
+                'update': 'sync-alt',
+                'points': 'coins',
+                'salary': 'money-bill-wave',
+                'default': 'bell'
+            };
+            return icons[type] || icons.default;
+        }
+
+        // Mark notification as read
+        function markAsRead(id) {
+            const notification = notifications.find(n => n.id === id);
+            if (notification && !notification.read) {
+                notification.read = true;
+                renderNotifications();
+                updateNotificationDot();
+            }
+        }
+
+        // Mark all as read
+        function markAllAsRead() {
+            notifications.forEach(notification => notification.read = true);
+            renderNotifications();
+            updateNotificationDot();
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', function() {
+            performSearch(this.value);
+        });
+
+        notificationTrigger.addEventListener('click', function() {
+            notificationPanel.classList.add('show');
+            overlay.classList.add('show');
+        });
+
+        logoutTrigger.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                logout();
+            }
+        });
+
+        overlay.addEventListener('click', function() {
+            notificationPanel.classList.remove('show');
+            overlay.classList.remove('show');
+            closeImageUpload();
+            closePerformanceGraph();
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!searchResults.contains(event.target) && !searchInput.contains(event.target)) {
+                searchResults.classList.remove('show');
+            }
+        });
+
+        // Initialize on load
+        window.onload = function() {
+            initPage();
+            
+            // Add welcome notification
+            setTimeout(() => {
+                const currentUser = getCurrentUser();
+                if (currentUser) {
+                    addNotification(
+                        "Welcome to Your Dashboard",
+                        `Hello ${currentUser.firstName}! Your account is connected to the admin panel. All data is managed by administrators.`,
+                        "update"
+                    );
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

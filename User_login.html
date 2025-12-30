@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Signup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Google Identity Services Library -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    /* Keep all your existing CSS styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card-container {
+      position: relative;
+      width: 380px;
+      min-height: 500px;
+    }
+
+    .login-card, .signup-card, .info-form {
+      background: #fff;
+      width: 100%;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s, transform 0.5s;
+    }
+
+    .active {
+      opacity: 1;
+      transform: translateY(0);
+      position: relative;
+    }
+
+    .hiding {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #2d3436;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    label {
+      font-size: 14px;
+      color: #636e72;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #dfe6e9;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #00b894;
+    }
+
+    input.error {
+      border-color: #d63031;
+    }
+
+    .error-message {
+      color: #d63031;
+      font-size: 12px;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    .success-message {
+      color: #00b894;
+      font-size: 12px;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00b894;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #019874;
+    }
+
+    .forgot-password {
+      text-align: right;
+      margin-top: 5px;
+      margin-bottom: 15px;
+    }
+
+    .forgot-password a {
+      font-size: 13px;
+      color: #00b894;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .google-btn {
+      background: #fff;
+      border: 1px solid #dfe6e9;
+      color: #2d3436;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .google-btn img {
+      width: 18px;
+      height: 18px;
+    }
+
+    .google-btn:hover {
+      background: #f4f6f9;
+      border-color: #00b894;
+    }
+
+    .footer-text {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #636e72;
+    }
+
+    .footer-text a {
+      color: #00b894;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .footer-text a.create-account {
+      color: #d63031;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 184, 148, 0.3);
+      border-radius: 50%;
+      border-top-color: #00b894;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateX(100px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      border-left: 4px solid #00b894;
+    }
+
+    .notification.error {
+      border-left: 4px solid #d63031;
+    }
+
+    .notification-icon {
+      font-size: 20px;
+    }
+
+    .notification.success .notification-icon {
+      color: #00b894;
+    }
+
+    .notification.error .notification-icon {
+      color: #d63031;
+    }
+
+    /* Google Sign In Button Container */
+    #google-signin-btn {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #dfe6e9;
+    }
+
+    .divider span {
+      padding: 0 10px;
+      color: #636e72;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Card Container -->
+  <div class="card-container">
+    <!-- Login Form -->
+    <div class="login-card active" id="loginForm">
+      <h2>Login</h2>
+      <form id="loginFormElement">
+        <div class="input-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email">
+          <div id="loginEmailError" class="error-message"></div>
+        </div>
+        <div class="input-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password">
+          <div id="loginPasswordError" class="error-message"></div>
+        </div>
+        <div class="forgot-password">
+          <a href="#">Forgot Password?</a>
+        </div>
+        <button type="submit" id="loginButton">
+          <span id="loginButtonText">Sign In</span>
+          <div id="loginLoader" class="loader" style="display: none;"></div>
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>OR</span>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <div id="google-signin-btn"></div>
+
+      <p class="footer-text">New User? <a id="showSignupLink" class="create-account">Create Account Here.</a></p>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="signup-card hiding" id="signupForm">
+      <h2>Create Account</h2>
+      <form id="signupFormElement">
+        <div class="input-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Enter your name">
+          <div id="signupNameError" class="error-message"></div>
+        </div>
+        <div class="input-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="Enter your email">
+          <div id="signupEmailError" class="error-message"></div>
+        </div>
+        <div class="input-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Enter your password">
+          <div id="signupPasswordError" class="error-message"></div>
+        </div>
+        <div class="input-group">
+          <label for="signupConfirm">Confirm Password</label>
+          <input type="password" id="signupConfirm" placeholder="Confirm your password">
+          <div id="signupConfirmError" class="error-message"></div>
+        </div>
+        <button type="submit" id="signupButton">
+          <span id="signupButtonText">Sign Up</span>
+          <div id="signupLoader" class="loader" style="display: none;"></div>
+        </button>
+      </form>
+
+      <p class="footer-text">Already have an account? <a id="showLoginLink">Login</a></p>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div class="notification" id="notification">
+    <div class="notification-icon">!</div>
+    <div class="notification-message"></div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const loginFormElement = document.getElementById('loginFormElement');
+    const signupFormElement = document.getElementById('signupFormElement');
+    
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginEmailError = document.getElementById('loginEmailError');
+    const loginPasswordError = document.getElementById('loginPasswordError');
+    
+    const signupName = document.getElementById('signupName');
+    const signupEmail = document.getElementById('signupEmail');
+    const signupPassword = document.getElementById('signupPassword');
+    const signupConfirm = document.getElementById('signupConfirm');
+    const signupNameError = document.getElementById('signupNameError');
+    const signupEmailError = document.getElementById('signupEmailError');
+    const signupPasswordError = document.getElementById('signupPasswordError');
+    const signupConfirmError = document.getElementById('signupConfirmError');
+    
+    const loginButton = document.getElementById('loginButton');
+    const loginButtonText = document.getElementById('loginButtonText');
+    const loginLoader = document.getElementById('loginLoader');
+    
+    const signupButton = document.getElementById('signupButton');
+    const signupButtonText = document.getElementById('signupButtonText');
+    const signupLoader = document.getElementById('signupLoader');
+    
+    const notification = document.getElementById('notification');
+    
+    const showSignupLink = document.getElementById('showSignupLink');
+    const showLoginLink = document.getElementById('showLoginLink');
+
+    // Get users from admin database
+    function getAdminUsers() {
+      return JSON.parse(localStorage.getItem('adminUsers')) || [];
+    }
+
+    // Save user to admin database
+    function saveUserToAdminDatabase(userData) {
+      let users = getAdminUsers();
+      
+      // Check if user already exists
+      const existingUserIndex = users.findIndex(u => u.email === userData.email);
+      
+      if (existingUserIndex === -1) {
+        // Generate user ID
+        const userId = 'USR' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 3).toUpperCase();
+        
+        // Create new user object for admin database
+        const newUser = {
+          id: userId,
+          firstName: userData.name.split(' ')[0] || userData.name,
+          lastName: userData.name.split(' ')[1] || '',
+          email: userData.email,
+          phone: '',
+          dob: '',
+          gender: '',
+          university: '',
+          address: '',
+          points: 0, // Starting with 0 points
+          salary: 0, // Default salary
+          joinDate: new Date().toISOString().split('T')[0],
+          lastLogin: new Date().toLocaleString(),
+          status: "active",
+          accountType: "User",
+          password: userData.password, // Store hashed password in real app
+          performanceHistory: [{
+            date: new Date().toISOString().split('T')[0],
+            points: 0,
+            salary: 0
+          }],
+          earningHistory: []
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('adminUsers', JSON.stringify(users));
+        
+        return newUser;
+      }
+      
+      return null;
+    }
+
+    // Check if user exists in admin database
+    function checkUserExistsInAdmin(email) {
+      const users = getAdminUsers();
+      return users.find(user => user.email === email);
+    }
+
+    // Validate user credentials
+    function validateUserCredentials(email, password) {
+      const users = getAdminUsers();
+      const user = users.find(u => u.email === email);
+      
+      if (!user) return null;
+      
+      // In a real app, you would hash and compare passwords properly
+      if (user.password === password) {
+        return user;
+      }
+      
+      return null;
+    }
+
+    // Show notification
+    function showNotification(message, type = 'error') {
+      const notificationMessage = notification.querySelector('.notification-message');
+      notificationMessage.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 4000);
+    }
+
+    // Show loading state
+    function showLoading(button, buttonText, loader) {
+      button.disabled = true;
+      buttonText.style.display = 'none';
+      loader.style.display = 'inline-block';
+    }
+
+    // Hide loading state
+    function hideLoading(button, buttonText, loader) {
+      button.disabled = false;
+      buttonText.style.display = 'inline';
+      loader.style.display = 'none';
+    }
+
+    // Switch between forms
+    function switchForms(hideForm, showForm) {
+      hideForm.classList.remove('active');
+      hideForm.classList.add('hiding');
+      
+      setTimeout(() => {
+        showForm.classList.remove('hiding');
+        showForm.classList.add('active');
+      }, 300);
+    }
+
+    // Handle login form submission
+    loginFormElement.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Reset errors
+      loginEmailError.textContent = "";
+      loginPasswordError.textContent = "";
+      loginEmail.classList.remove('error');
+      loginPassword.classList.remove('error');
+      
+      let valid = true;
+      
+      // Validate email
+      if (!loginEmail.value.trim()) {
+        loginEmailError.textContent = "Email is required";
+        loginEmail.classList.add('error');
+        valid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail.value)) {
+        loginEmailError.textContent = "Please enter a valid email address";
+        loginEmail.classList.add('error');
+        valid = false;
+      }
+      
+      // Validate password
+      if (!loginPassword.value.trim()) {
+        loginPasswordError.textContent = "Password is required";
+        loginPassword.classList.add('error');
+        valid = false;
+      }
+      
+      if (valid) {
+        showLoading(loginButton, loginButtonText, loginLoader);
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Check if user exists in admin database
+        const user = validateUserCredentials(loginEmail.value.trim(), loginPassword.value);
+        
+        if (!user) {
+          // User does not exist or password is wrong
+          loginPasswordError.textContent = "Invalid email or password";
+          loginPassword.classList.add('error');
+          showNotification("Invalid credentials. Please try again.", 'error');
+        } else {
+          // Login successful
+          showNotification("Login successful! Redirecting...", 'success');
+          
+          // Store user session
+          const sessionData = {
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            userId: user.id,
+            loggedIn: true,
+            timestamp: new Date().toISOString()
+          };
+          
+          localStorage.setItem('userSession', JSON.stringify(sessionData));
+          
+          // Redirect to user panel with user data
+          setTimeout(() => {
+            window.location.href = "User_panal.html";
+          }, 1500);
+        }
+        
+        hideLoading(loginButton, loginButtonText, loginLoader);
+      }
+    });
+
+    // Handle signup form submission
+    signupFormElement.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Reset errors
+      signupNameError.textContent = "";
+      signupEmailError.textContent = "";
+      signupPasswordError.textContent = "";
+      signupConfirmError.textContent = "";
+      
+      let valid = true;
+      
+      // Validate name
+      if (!signupName.value.trim()) {
+        signupNameError.textContent = "Full name is required";
+        valid = false;
+      }
+      
+      // Validate email
+      if (!signupEmail.value.trim()) {
+        signupEmailError.textContent = "Email is required";
+        valid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signupEmail.value)) {
+        signupEmailError.textContent = "Please enter a valid email address";
+        valid = false;
+      } else if (checkUserExistsInAdmin(signupEmail.value.trim())) {
+        signupEmailError.textContent = "Email already exists. Please login instead.";
+        valid = false;
+      }
+      
+      // Validate password
+      if (!signupPassword.value.trim()) {
+        signupPasswordError.textContent = "Password is required";
+        valid = false;
+      } else if (signupPassword.value.length < 6) {
+        signupPasswordError.textContent = "Password must be at least 6 characters";
+        valid = false;
+      }
+      
+      // Validate confirm password
+      if (!signupConfirm.value.trim()) {
+        signupConfirmError.textContent = "Confirm password is required";
+        valid = false;
+      } else if (signupPassword.value !== signupConfirm.value) {
+        signupConfirmError.textContent = "Passwords do not match";
+        valid = false;
+      }
+      
+      if (valid) {
+        showLoading(signupButton, signupButtonText, signupLoader);
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Create user data
+        const userData = {
+          name: signupName.value.trim(),
+          email: signupEmail.value.trim(),
+          password: signupPassword.value
+        };
+        
+        // Save user to admin database
+        const newUser = saveUserToAdminDatabase(userData);
+        
+        if (newUser) {
+          hideLoading(signupButton, signupButtonText, signupLoader);
+          
+          showNotification("Account created successfully! Please login with your new credentials.", 'success');
+          
+          // Auto-fill login form with new credentials
+          loginEmail.value = signupEmail.value;
+          loginPassword.value = signupPassword.value;
+          
+          // Switch back to login form
+          setTimeout(() => {
+            switchForms(signupForm, loginForm);
+            // Clear signup form
+            signupFormElement.reset();
+          }, 1000);
+        } else {
+          showNotification("Failed to create account. Please try again.", 'error');
+          hideLoading(signupButton, signupButtonText, signupLoader);
+        }
+      }
+    });
+
+    // Switch to signup form
+    showSignupLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      switchForms(loginForm, signupForm);
+    });
+
+    // Switch to login form
+    showLoginLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      switchForms(signupForm, loginForm);
+    });
+
+    // Initialize when page loads
+    window.onload = function() {
+      // Check if user is already logged in
+      const session = JSON.parse(localStorage.getItem('userSession'));
+      if (session && session.loggedIn) {
+        // Redirect to user panel
+        window.location.href = "User_panal.html";
+      }
+      
+      // Initialize Google Sign-In (if needed)
+      // initializeGoogleSignIn();
+    };
+  </script>
+</body>
+</html>
